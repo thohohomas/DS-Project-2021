@@ -1,0 +1,231 @@
+---
+title: "DS Final Project"
+author: "Neha Anand, John Morkos, Zach Murphy, Thomas Le"
+date: "5/18/2021"
+output:  flexdashboard::flex_dashboard
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r loading data, echo=FALSE, message=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(plotly)
+library(datasets)
+library(shinyWidgets)
+vaccines = read_csv("https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/vaccinations/us_state_vaccinations.csv")
+
+cases = read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv")
+
+cases_clean = cases %>% pivot_longer(names_to="Date", values_to="Cases", cols=colnames(cases[12:length(cases)]))
+cases_clean = cases_clean %>% mutate(Date = as.Date(cases_clean$Date, format ="%m/%d/%y"))
+
+deaths = read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv")
+deaths_clean = deaths %>% pivot_longer(names_to="Date", values_to="Cases", cols=colnames(deaths[13:length(deaths)]))
+deaths_clean = deaths_clean %>% mutate(Date = as.Date(deaths_clean$Date, format ="%m/%d/%y"))
+
+vaccines = vaccines %>% mutate(share_doses_used=share_doses_used*100)
+
+
+```
+
+
+Heat Map 
+======================
+Sidebar {.sidebar}
+----------------------------------
+### Select Inputs
+```{r input1, echo=FALSE, message=FALSE}
+
+varSelectInput("vaccine_trend_1", "Select vaccination trend", vaccines[3: length(vaccines)])
+
+selectInput("google_trends_1", "Select a google search term", c("covid", "vaccine", "vaccine near me", "mask", "social distancing", "qanon"))
+urlfile="https://raw.githubusercontent.com/jmorkos1/DS-Project-2021/main/Time%20Series%20Analysis/models.csv"
+data<-read_csv(url(urlfile))
+
+
+```
+
+Heat Map
+-------------------------------------
+### Heat Map
+```{r rendering heat map, echo=FALSE}
+library(ggplot2)
+library(RColorBrewer)
+library(ggmap)
+library(maps)
+library(rgdal)
+library(scales)
+library(shiny)
+library(maptools)
+library(gridExtra)
+library(rgeos)
+library(rgdal)
+# download.file("https://www2.census.gov/geo/tiger/TIGER2017//STATE/tl_2017_us_state.zip" , destfile="US_shape_file.zip")
+# system("unzip US_shape_file.zip")
+# my_spdf <- readOGR( 
+#   dsn= paste0(getwd()),
+#   layer="tl_2017i_us_state",
+#   verbose=FALSE
+# )
+# 
+# plot(my_spdf)
+library(ggplot2)
+library(RColorBrewer)
+all_states<-map_data("state")
+names(all_states)[names(all_states)=="region"] <- "state"
+url="https://raw.githubusercontent.com/jmorkos1/DS-Project-2021/main/Time%20Series%20Analysis/models.csv"
+data=read.csv("https://raw.githubusercontent.com/jmorkos1/DS-Project-2021/main/Time%20Series%20Analysis/models.csv")
+clean_data=subset(data, select=-c(pvalue, f, acf_x, acf_y, res_norm_p, res_hsce_p, res_acor_p))
+capFirst <- function(s) {
+    paste(toupper(substring(s, 1, 1)), substring(s, 2), sep = "")
+}
+all_states$state <- capFirst(all_states$state)
+# all_states <- all_states[all_states$state=="North dakota"=="North Dakota" | all_states$state=="South dakota"=="South Dakota" |all_states$state=="North carolina"=="North Carolina" |all_states$state=="South carolina"=="South Carolina" |all_states$state=="West virginia "=="West Virginia" |all_states$state=="New mexico"=="New Mexico"|all_states$state=="New hampshire"=="New Hampshire"|all_states$state=="New york"=="New York"|all_states$state=="New jersey"=="New Jersey"|all_states$state=="Rhode island"=="Rhode Island",]
+all_states$state[all_states$state=="North dakota"] <- "North Dakota" 
+all_states$state[all_states$state=="South dakota"] <- "South Dakota" 
+all_states$state[all_states$state=="North carolina"] <- "North Carolina" 
+all_states$state[all_states$state=="West virginia"] <- "West Virginia" 
+all_states$state[all_states$state=="New mexico"] <- "New Mexico" 
+all_states$state[all_states$state=="New hampshire"] <- "New Hampshire" 
+all_states$state[all_states$state=="New york"] <- "New York" 
+all_states$state[all_states$state=="New jersey"] <- "New Jersey" 
+all_states$state[all_states$state=="Rhode island"] <- "Rhode Island" 
+all_states$state[all_states$state=="South carolina"] <- "South Carolina" 
+renderPlot({
+clean_data_red <- clean_data[clean_data$outcome==(input$vaccine_trend_1) & clean_data$term==(input$google_trends_1),]
+merged_data <- merge(clean_data_red, all_states, by="state")
+merged_data$state<-factor(merged_data$state)
+final_data <- merged_data[order(merged_data$order),]
+redgreen <- c("red", "green") 
+pal <- colorRampPalette(redgreen)(100)
+p<-ggplot(final_data, aes(long, lat, group=group, fill=r2, color='red')) +
+  geom_polygon(color="red") + scale_fill_gradientn(colours=rev(heat.colors(10)),na.value="grey90") 
+p
+})
+# renderDataTable({
+# clean_data_red <- clean_data[clean_data$outcome==(input$vaccine_trend_1) & clean_data$term==(input$google_trends_1),]
+# all_states$state <- capFirst(all_states$state)
+# merged_data <- merge(clean_data_red, all_states, by="state")
+# merged_data$state<-factor(merged_data$state)
+# final_data <- merged_data[order(merged_data$order),]
+# final_data
+# })
+```
+
+
+Graphs of Trends 
+======================
+
+Sidebar {.sidebar}
+---------------------------------------------
+### Select Inputs
+```{r input2, echo=FALSE, message=FALSE}
+varSelectInput("vaccine_trend_2", "Select vaccination trend", vaccines[3: length(vaccines)])
+
+selectInput("google_trends_2", "Select a google search term", c("covid", "vaccine", "vaccine near me", "mask", "social distancing", "qanon"))
+
+checkboxInput("smooth", "Check to add smoothed time series")
+
+states = c("All", state.name)
+
+prettyCheckboxGroup("states", "Select state(s)", states, shape="square", selected="All", icon=icon("check"))
+```
+
+Column {data-width = 1000}
+-------------------------------------------
+
+### Vaccination Trends
+```{r rendering vaccination plot, echo=FALSE}
+  renderPlotly({
+  if(length(input$states)!=0){
+    if(input$states!="All"){
+      graph_data=vaccines%>%filter(location%in%input$states)}
+    else{
+      graph_data=vaccines
+    }
+    
+    
+    
+    plot = ggplot(data = graph_data, aes_string(x="date", y=input$vaccine_trend_2, fill="location")) + geom_point(aes(color=location))
+    plot = plot + theme(axis.text.x=element_text(angle=45, size = 10)) + ggtitle(as.character(input$vaccine_trend_2))
+   if(input$smooth){
+      plot = plot+geom_smooth(aes(color=location))
+    }
+   
+    }
+    else
+    {
+       graph_data=vaccines
+      plot = ggplot(data = graph_data, aes_string(x="date", y=input$vaccine_trend_2))
+    }
+
+ ggplotly(plot)
+})
+```
+
+### Google Search Trend
+```{r rendering google trends plot, echo=FALSE, message=FALSE}
+
+renderPlotly({
+  
+  if(input$google_trends_2=="covid"){
+    googtrend = read_csv("https://raw.githubusercontent.com/nanand7/DS-Project-2021/main/Google%20Trends%20Data/covid%20data.csv")
+  }
+  else if(input$google_trends_2=="vaccine"){
+    googtrend = read_csv("https://raw.githubusercontent.com/nanand7/DS-Project-2021/main/Google%20Trends%20Data/vaccine%20data.csv")
+  }
+   else if(input$google_trends_2=="vaccine near me"){
+    googtrend = read_csv("https://raw.githubusercontent.com/nanand7/DS-Project-2021/main/Google%20Trends%20Data/vaccine%20near%20me%20data.csv")
+   }
+   else if(input$google_trends_2=="mask"){
+    googtrend = read_csv("https://raw.githubusercontent.com/nanand7/DS-Project-2021/main/Google%20Trends%20Data/mask%20data.csv")
+   }
+    else if(input$google_trends_2=="social distancing"){
+    googtrend = read_csv("https://raw.githubusercontent.com/nanand7/DS-Project-2021/main/Google%20Trends%20Data/social%20distancing%20data.csv")
+   }
+   else if(input$google_trends_2=="qanon"){
+    googtrend = read_csv("https://raw.githubusercontent.com/nanand7/DS-Project-2021/main/Google%20Trends%20Data/qanon%20data.csv")
+    googtrend$hits = as.numeric(googtrend$hits)
+   }
+  
+  
+   if(length(input$states)!=0){
+    if(input$states!="All"){
+      graph_data_goog=googtrend%>%filter(geo %in% input$states)
+      }
+    else{
+      graph_data_goog=googtrend
+    }
+    
+    plot2 = ggplot(data = graph_data_goog, aes(x=date, y=hits, fill=geo)) + geom_point(aes(color=geo))
+    plot2 = plot2 + theme(axis.text.x=element_text(angle=45, size = 10)) + ggtitle(as.character(input$google_trends_2))
+    
+   if(input$smooth){
+      plot2 = plot2+geom_smooth(aes(color=geo))
+    }
+   
+    }
+    else
+    {
+       graph_data_goog=googtrend
+      plot2 = ggplot(data = graph_data_goog, aes(x=date, y=hits))
+    }
+
+ ggplotly(plot2)
+
+
+
+})
+```
+
+
+Web App Details 
+======================
+### App Details 
+Write details about final app here
+Vaccination data from: Our World in Data - https://github.com/owid/covid-19-data/tree/master/public/data/vaccinations 
+Cases and deaths data from: COVID-19 Data Repository by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University - https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series 
