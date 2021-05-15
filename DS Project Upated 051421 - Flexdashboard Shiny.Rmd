@@ -297,6 +297,4 @@ else{
 Web App Details 
 ======================
 ### App Details 
-Write details about final app here
-Vaccination data from: Our World in Data - https://github.com/owid/covid-19-data/tree/master/public/data/vaccinations 
-Cases and deaths data from: COVID-19 Data Repository by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University - https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series 
+
