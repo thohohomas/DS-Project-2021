@@ -1,4 +1,4 @@
-# Can Google Search Trends help predict vaccination rates? 
+# Are Google Search Trends correlated with COVID-19 Daily Vaccination Rates? 
 *An infodemiologic analysis using Google Search Trends in the COVID-19 pandemic* 
 
 *Final project for data science for public health 2021, with Zach Murphy, Neha Anand, John Morkos, and Thomas Le* 
@@ -27,5 +27,5 @@ The un-processed daily vaccination data and Google Search Trend data was first f
 Google Search Trends are normalized from 0-100 within the region of interest (in this case, by state) over the time period of interest. Thus, a 100 indicates a maximum search interest within the time period specified, and 0 indicates minimal search interest within the time period specified. You can read more here (https://medium.com/google-news-lab/what-is-google-trends-data-and-what-does-it-mean-b48f07342ee8) with an interesting discussion of de-normalizing Google Trends data here (https://www.jmir.org/2020/1/e13347/).
 
 ## Data sources 
-Our World in Data - https://github.com/owid/covid-19-data/tree/master/public/data/vaccinations 
+Our World in Data - Mathieu, E., Ritchie, H., Ortiz-Ospina, E. et al. A global database of COVID-19 vaccinations. Nat Hum Behav (2021). https://doi.org/10.1038/s41562-021-01122-8
 <p>Google Search Trends data downloaded using the gtrendsR R package - https://cran.r-project.org/web/packages/gtrendsR/gtrendsR.pdf
