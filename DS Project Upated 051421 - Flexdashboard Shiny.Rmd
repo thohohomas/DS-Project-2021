@@ -1,11 +1,12 @@
 ---
-title: "DS Final Project"
+title: "US Daily COVID19 Vaccinations and Google Trends"
+subtitle: "Final DS Project"
 author: "Neha Anand, John Morkos, Zach Murphy, Thomas Le"
 date: "5/18/2021"
 output:  flexdashboard::flex_dashboard
-runtime: shiny
+runtime: shiny'
 ---
-
+ 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
