@@ -42,10 +42,22 @@ selectInput("google_trends_1", "Select a google search term", c("covid", "vaccin
 selectInput("lag", "Select lag time (days)", c(3, 7, 14))
 ```
 
-Heat Map {data-width=100000}
+Heat Map 
+======================
+Sidebar {.sidebar}
+----------------------------------
+### Select Inputs
+### Select Inputs
+```{r input1, echo=FALSE, message=FALSE}
+selectInput("vaccine_trend_1", "Select vaccination term", c("daily vaccinations", "daily vaccinations per million"))
+selectInput("google_trends_1", "Select a google search term", c("covid", "vaccine", "vaccine near me", "mask", "social distancing", "qanon"))
+selectInput("lag", "Select lag time", c("0","-1","-2",'-3','-4','-5','-6','-7','-8','-9','-10','-11','-12','-13','-14'))
+```
+
+Heat Map
 -------------------------------------
 ### Heat Map
-```{r rendering heat map, fig_width=20, fig.height=10, fig.fulwidth=TRUE, echo=FALSE}
+```{r rendering heat map, echo=FALSE}
 library(ggplot2)
 library(RColorBrewer)
 library(ggmap)
@@ -70,11 +82,11 @@ library(ggplot2)
 library(RColorBrewer)
 all_states<-map_data("state")
 names(all_states)[names(all_states)=="region"] <- "state"
-url="https://raw.githubusercontent.com/jmorkos1/DS-Project-2021/main/Time%20Series%20Analysis/models.csv"
-data=read.csv("https://raw.githubusercontent.com/jmorkos1/DS-Project-2021/main/Time%20Series%20Analysis/models.csv")
-clean_data=subset(data, select=-c(pvalue, f, acf_x, acf_y, res_norm_p, res_hsce_p, res_acor_p))
+url="https://raw.githubusercontent.com/jmorkos1/DS-Project-2021/main/final_model_5.csv"
+data=read.csv("https://raw.githubusercontent.com/jmorkos1/DS-Project-2021/main/final_model_5.csv")
+#clean_data=subset(data, select=-c(pvalue, f, acf_x, acf_y, res_norm_p, res_hsce_p, res_acor_p))
 capFirst <- function(s) {
-  paste(toupper(substring(s, 1, 1)), substring(s, 2), sep = "")
+    paste(toupper(substring(s, 1, 1)), substring(s, 2), sep = "")
 }
 all_states$state <- capFirst(all_states$state)
 # all_states <- all_states[all_states$state=="North dakota"=="North Dakota" | all_states$state=="South dakota"=="South Dakota" |all_states$state=="North carolina"=="North Carolina" |all_states$state=="South carolina"=="South Carolina" |all_states$state=="West virginia "=="West Virginia" |all_states$state=="New mexico"=="New Mexico"|all_states$state=="New hampshire"=="New Hampshire"|all_states$state=="New york"=="New York"|all_states$state=="New jersey"=="New Jersey"|all_states$state=="Rhode island"=="Rhode Island",]
@@ -89,16 +101,16 @@ all_states$state[all_states$state=="New jersey"] <- "New Jersey"
 all_states$state[all_states$state=="Rhode island"] <- "Rhode Island" 
 all_states$state[all_states$state=="South carolina"] <- "South Carolina" 
 renderPlot({
-  vt1 = gsub(" ", "_", as.character(input$vaccine_trend_1))
-  clean_data_red <- clean_data[clean_data$outcome==(vt1) & clean_data$term==(input$google_trends_1),]
-  merged_data <- merge(clean_data_red, all_states, by="state")
-  merged_data$state<-factor(merged_data$state)
-  final_data <- merged_data[order(merged_data$order),]
-  redgreen <- c("red", "green") 
-  pal <- colorRampPalette(redgreen)(100)
-  p<-ggplot(final_data, aes(long, lat, group=group, fill=r2, color='red')) +
-    geom_polygon(color="red") + scale_fill_gradientn(colours=rev(heat.colors(10)),na.value="grey90") 
-  p
+vt1 = gsub(" ", "_", as.character(input$vaccine_trend_1))
+clean_data_red <- data[data$outcome==(vt1) & data$term==(input$google_trends_1) & data$lagd==(input$lag),]
+merged_data <- merge(clean_data_red, all_states, by="state")
+merged_data$state<-factor(merged_data$state)
+final_data <- merged_data[order(merged_data$order),]
+redgreen <- c("red", "green") 
+pal <- colorRampPalette(redgreen)(100)
+p<-ggplot(final_data, aes(long, lat, group=group, fill=croscor, color='red')) +
+  geom_polygon(color="red") + scale_fill_gradientn(colours=rev(heat.colors(10)),na.value="grey90") 
+p
 })
 # renderDataTable({
 # clean_data_red <- clean_data[clean_data$outcome==(input$vaccine_trend_1) & clean_data$term==(input$google_trends_1),]
