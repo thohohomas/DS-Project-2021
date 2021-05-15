@@ -36,16 +36,16 @@ Heat Map
 Sidebar {.sidebar}
 ----------------------------------
 ### Select Inputs
-### Select Inputs
 ```{r input1, echo=FALSE, message=FALSE}
 selectInput("vaccine_trend_1", "Select vaccination term", c("daily vaccinations", "daily vaccinations per million"))
 selectInput("google_trends_1", "Select a google search term", c("covid", "vaccine", "vaccine near me", "mask", "social distancing", "qanon"))
+selectInput("lag", "Select lag time (days)", c(3, 7, 14))
 ```
 
-Heat Map
+Heat Map {data-width=100000}
 -------------------------------------
 ### Heat Map
-```{r rendering heat map, echo=FALSE}
+```{r rendering heat map, fig_width=20, fig.height=10, fig.fulwidth=TRUE, echo=FALSE}
 library(ggplot2)
 library(RColorBrewer)
 library(ggmap)
@@ -74,7 +74,7 @@ url="https://raw.githubusercontent.com/jmorkos1/DS-Project-2021/main/Time%20Seri
 data=read.csv("https://raw.githubusercontent.com/jmorkos1/DS-Project-2021/main/Time%20Series%20Analysis/models.csv")
 clean_data=subset(data, select=-c(pvalue, f, acf_x, acf_y, res_norm_p, res_hsce_p, res_acor_p))
 capFirst <- function(s) {
-    paste(toupper(substring(s, 1, 1)), substring(s, 2), sep = "")
+  paste(toupper(substring(s, 1, 1)), substring(s, 2), sep = "")
 }
 all_states$state <- capFirst(all_states$state)
 # all_states <- all_states[all_states$state=="North dakota"=="North Dakota" | all_states$state=="South dakota"=="South Dakota" |all_states$state=="North carolina"=="North Carolina" |all_states$state=="South carolina"=="South Carolina" |all_states$state=="West virginia "=="West Virginia" |all_states$state=="New mexico"=="New Mexico"|all_states$state=="New hampshire"=="New Hampshire"|all_states$state=="New york"=="New York"|all_states$state=="New jersey"=="New Jersey"|all_states$state=="Rhode island"=="Rhode Island",]
@@ -89,16 +89,16 @@ all_states$state[all_states$state=="New jersey"] <- "New Jersey"
 all_states$state[all_states$state=="Rhode island"] <- "Rhode Island" 
 all_states$state[all_states$state=="South carolina"] <- "South Carolina" 
 renderPlot({
-vt1 = gsub(" ", "_", as.character(input$vaccine_trend_1))
-clean_data_red <- clean_data[clean_data$outcome==(vt1) & clean_data$term==(input$google_trends_1),]
-merged_data <- merge(clean_data_red, all_states, by="state")
-merged_data$state<-factor(merged_data$state)
-final_data <- merged_data[order(merged_data$order),]
-redgreen <- c("red", "green") 
-pal <- colorRampPalette(redgreen)(100)
-p<-ggplot(final_data, aes(long, lat, group=group, fill=r2, color='red')) +
-  geom_polygon(color="red") + scale_fill_gradientn(colours=rev(heat.colors(10)),na.value="grey90") 
-p
+  vt1 = gsub(" ", "_", as.character(input$vaccine_trend_1))
+  clean_data_red <- clean_data[clean_data$outcome==(vt1) & clean_data$term==(input$google_trends_1),]
+  merged_data <- merge(clean_data_red, all_states, by="state")
+  merged_data$state<-factor(merged_data$state)
+  final_data <- merged_data[order(merged_data$order),]
+  redgreen <- c("red", "green") 
+  pal <- colorRampPalette(redgreen)(100)
+  p<-ggplot(final_data, aes(long, lat, group=group, fill=r2, color='red')) +
+    geom_polygon(color="red") + scale_fill_gradientn(colours=rev(heat.colors(10)),na.value="grey90") 
+  p
 })
 # renderDataTable({
 # clean_data_red <- clean_data[clean_data$outcome==(input$vaccine_trend_1) & clean_data$term==(input$google_trends_1),]
@@ -126,7 +126,9 @@ selectInput("vaccine_trend_2", "Select vaccination term", c("daily vaccinations"
 selectInput("google_trends_2", "Select a google search term", c("covid", "vaccine", "vaccine near me", "mask", "social distancing", "qanon"))
 
 awesomeCheckbox("points", "Raw data points", value=TRUE, status="info")
+awesomeCheckbox("line", "Add lines", status="info")
 awesomeCheckbox("smooth", "Add smoothed time series", status="info")
+
 
 states = c(state.name)
 pickerInput("states", "Select up to 5 states", states, selected="Alabama", multiple=TRUE, options=pickerOptions(actionsBox=TRUE, maxOptions=5, maxOptionsText="Please select 5 or less states"))
@@ -154,16 +156,19 @@ renderText({
 ```{r rendering vaccination plot, echo=FALSE}
   renderPlotly({
     
- vt = gsub(" ", "_", as.character(input$vaccine_trend_2))
+ vt2 = gsub(" ", "_", as.character(input$vaccine_trend_2))
  
     
   if(length(input$states)>0|length(input$states)<=5){
       graph_data=vaccines%>%filter(location%in%input$states)
     
-    plot = ggplot(data = graph_data, aes_string(x="date", y=vt, fill="location")) 
-    plot = plot + theme(axis.text.x=element_text(angle=45, size = 10)) + ggtitle(as.character(input$vaccine_trend_2)) + ylab(as.character(input$vaccine_trend_2))
+    plot = ggplot(data = graph_data, aes_string(x="date", y=vt2, fill="location")) 
+    plot = plot + theme(axis.text.x=element_text(angle=45, size = 10)) + ggtitle(as.character(input$vaccine_trend_2)) +theme(legend.title=element_blank())+ylab(input$vaccine_trend_2)
      if(input$points){
       plot = plot+ geom_point(aes(color=location))
+     }
+    if(input$line){
+      plot = plot+geom_line(aes(color=location), se=FALSE)
     }
     if(input$smooth){
       plot = plot+geom_smooth(aes(color=location), se=FALSE)
@@ -173,7 +178,7 @@ renderText({
   
     if(length(input$states)==0|length(input$states)>5){
        graph_data=vaccines
-       plot = ggplot(data = graph_data, aes_string(x="date", y=vt)) +ggtitle(as.character(input$vaccine_trend_2)) + ylab(as.character(input$vaccine_trend_2)) 
+       plot = ggplot(data = graph_data, aes_string(x="date", y=vt2)) +ggtitle(as.character(input$vaccine_trend_2)) +theme(legend.title=element_blank())+ylab(input$vaccine_trend_2)
     }
 
     
@@ -204,17 +209,20 @@ renderPlotly({
    }
    else if(input$google_trends_2=="qanon"){
     googtrend = read_csv("https://raw.githubusercontent.com/nanand7/DS-Project-2021/main/Google%20Trends%20Data/qanon%20data.csv")
-    googtrend$hits = as.numeric(googtrend$hits)
    }
   
-  
+   googtrend$hits = as.numeric(googtrend$hits)
+
    if(length(input$states)!=0|length(input$states)<=5){
       graph_data_goog=googtrend%>%filter(geo%in%input$states)
     
     plot2 = ggplot(data = graph_data_goog, aes(x=date, y=hits, fill=geo)) 
-    plot2 = plot2 + theme(axis.text.x=element_text(angle=45, size = 10)) + ggtitle(as.character(input$google_trends_2))
+    plot2 = plot2 + theme(axis.text.x=element_text(angle=45, size = 10)) + ggtitle(as.character(input$google_trends_2)) +theme(legend.title=element_blank())
    if(input$points){
       plot2 = plot2+ geom_point(aes(color=geo))
+   }
+    if(input$line){
+      plot2 = plot2+geom_line(aes(color=geo), se=FALSE)
     }
    if(input$smooth){
       plot2 = plot2+geom_smooth(aes(color=geo), se=FALSE)
@@ -224,7 +232,9 @@ renderPlotly({
 
    if(length(input$states)==0|length(input$states)>5){
        graph_data_goog=googtrend
-      plot2 = ggplot(data = graph_data_goog, aes(x=date, y=hits)) + ggtitle(as.character(input$google_trends_2))
+      plot2 = ggplot(data = graph_data_goog, aes(x=date, y=hits)) + ggtitle(as.character(input$google_trends_2)) +theme(legend.title=element_blank())
+      
+
     }
 
  ggplotly(plot2)
@@ -235,7 +245,7 @@ renderPlotly({
 ```
 
 
-Column {data-width=450}
+Column {data-width=700}
 -------------------------------------------
 
 ### Model Details
@@ -243,18 +253,19 @@ Column {data-width=450}
 renderTable({
 
   library(data.table)
-   vt = c(gsub(" ", "_", as.character(input$vaccine_trend_2)))
+   vt2 = c(gsub(" ", "_", as.character(input$vaccine_trend_2)))
  if(length(input$states)>0&length(input$states)<=5){
   display = model_dat %>% 
-  filter(outcome%in%vt)%>%
+  filter(outcome%in%vt2)%>%
   filter(term%in%input$google_trends_2)%>%
   filter(state%in%input$states)%>%
-  filter(X1<4200)%>%
-  select("state", "term", "r2")%>%
+  filter(lagd==-3|lagd==-7|lagd==-14)%>%
+  select("state", "term", "lagd", "croscor")%>%
   rename(
     "State" = state,
     "Google Trend" = term,
-    "R2" = r2)
+    "Cross correlation" = croscor,
+    "Days lagged" = lagd)
   
     return(setDT(display))
  }
@@ -262,11 +273,12 @@ renderTable({
 else{
   display = model_dat %>% 
   filter(outcome=="")%>%
-  select("state", "term", "r2")%>%
+  select("state", "term", "croscor")%>%
   rename(
     "State" = state,
     "Google Trend" = term,
-    "R2" = r2)
+    "Cross correlation" = croscor,
+    "Days lagged" = lagd)
   
   return(setDT(display))
   
