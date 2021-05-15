@@ -42,7 +42,6 @@ Heat Map
 Sidebar {.sidebar}
 ----------------------------------
 ### Select Inputs
-### Select Inputs
 ```{r input1, echo=FALSE, message=FALSE}
 selectInput("vaccine_trend_1", "Select vaccination term", c("daily vaccinations", "daily vaccinations per million"))
 selectInput("google_trends_1", "Select a google search term", c("covid", "vaccine", "vaccine near me", "mask", "social distancing", "qanon"))
