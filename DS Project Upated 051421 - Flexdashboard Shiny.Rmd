@@ -289,7 +289,7 @@ else{
    
   #return(setDT(display))
 }
-  datatable(display, options=list(dom='t', pageLength=15))
+  datatable(display, options=list(dom='tp', pageLength=12))
 })
 ```
 
