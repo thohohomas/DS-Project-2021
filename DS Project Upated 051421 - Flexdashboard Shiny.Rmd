@@ -36,22 +36,11 @@ Heat Map
 Sidebar {.sidebar}
 ----------------------------------
 ### Select Inputs
-```{r input1, echo=FALSE, message=FALSE}
-selectInput("vaccine_trend_1", "Select vaccination term", c("daily vaccinations", "daily vaccinations per million"))
-selectInput("google_trends_1", "Select a google search term", c("covid", "vaccine", "vaccine near me", "mask", "social distancing", "qanon"))
-selectInput("lag", "Select lag time (days)", c(3, 7, 14))
-```
-
-Heat Map 
-======================
-Sidebar {.sidebar}
-----------------------------------
-### Select Inputs
 ### Select Inputs
 ```{r input1, echo=FALSE, message=FALSE}
 selectInput("vaccine_trend_1", "Select vaccination term", c("daily vaccinations", "daily vaccinations per million"))
 selectInput("google_trends_1", "Select a google search term", c("covid", "vaccine", "vaccine near me", "mask", "social distancing", "qanon"))
-selectInput("lag", "Select lag time", c("0","-1","-2",'-3','-4','-5','-6','-7','-8','-9','-10','-11','-12','-13','-14'))
+sliderInput("lag", "Select lag time in days", -14, 0, 7,step = 1) #c("0","-1","-2",'-3','-4','-5','-6','-7','-8','-9','-10','-11','-12','-13','-14'))
 ```
 
 Heat Map
@@ -102,14 +91,14 @@ all_states$state[all_states$state=="Rhode island"] <- "Rhode Island"
 all_states$state[all_states$state=="South carolina"] <- "South Carolina" 
 renderPlot({
 vt1 = gsub(" ", "_", as.character(input$vaccine_trend_1))
-clean_data_red <- data[data$outcome==(vt1) & data$term==(input$google_trends_1) & data$lagd==(input$lag),]
+clean_data_red <- data[data$outcome==(vt1) & data$term==(input$google_trends_1) & data$lagd==(as.character(input$lag)),]
 merged_data <- merge(clean_data_red, all_states, by="state")
 merged_data$state<-factor(merged_data$state)
 final_data <- merged_data[order(merged_data$order),]
 redgreen <- c("red", "green") 
 pal <- colorRampPalette(redgreen)(100)
 p<-ggplot(final_data, aes(long, lat, group=group, fill=croscor, color='red')) +
-  geom_polygon(color="red") + scale_fill_gradientn(colours=rev(heat.colors(10)),na.value="grey90") 
+  geom_polygon(color="black") +   scale_fill_gradient(low = "yellow", high = "red", na.value = NA)
 p
 })
 # renderDataTable({
