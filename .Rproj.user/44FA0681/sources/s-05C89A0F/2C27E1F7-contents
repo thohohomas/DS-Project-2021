@@ -7,8 +7,6 @@ output:  flexdashboard::flex_dashboard
 runtime: shiny'
 ---
  
-  
-  
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -38,42 +36,6 @@ deaths_clean = deaths_clean %>% mutate(Date = as.Date(deaths_clean$Date, format 
 model_dat = read_csv("https://raw.githubusercontent.com/nanand7/DS-Project-2021/main/Time%20Series%20Analysis/models.csv")
 
 ```
-Web App Details 
-======================
-### Text Descp
-
-*Are Google Search Trends correlated with US COVID-19 Daily Vaccination Rates?*
-
-Link to github: https://github.com/nanand7/DS-Project-2021/ 
-
-
-*Summary*
-
-This is a shiny app that visualizes the association between potential vaccination search terms "covid", "vaccine", "vaccine near me", "mask", "social distancing" and "qanon" with actual daily vaccination totals within the US by states from January 1st, 2021 to May 11th, 2021.
-
-
-*Heat Map*
-
-This is a heat map of the contiguous 48 states that shows the correlation between a given search term with daily vaccinations. In the left bar you can choose the vaccination quantity (daily vaccinations, daily vaccinations per million), the google search term of interest, and the time lag. The heat map shows negative to positive correlations (which range from -1 to 1). A negative correlation indicates that an increase in search term interest is correlated with decreased vaccinations, and a positive correlation indicates that an increase in search term is correlated with increased vaccinations. The time lag refers to how long before the Google search interest was correlated with daily vaccinations. For example, a time lag of -14 tests how correlated the trends in the residuals for a search term 14 days before, say "vaccine", are with daily vaccination rate.
-
-*Graphs of Trends*
-
-Here, you can see a graph of daily vaccinations and Google search trends over time for easy visualization. In the left bar you can choose the vaccination quantity (daily vaccinations, daily vaccinations per million), the Google search term of interest, how you want the data visualized (raw data points, connecting lines, or a loess smoother), and a selection of up to five states.
-
-*Analysis*
-
-The un-processed daily vaccination data and Google Search Trend data was first fit to an ARIMA model (https://online.stat.psu.edu/stat510/lesson/1) to account for the time series nature of this data. Then, the correlation between the two models was determined by taking the residuals from the two models and calculating a cross-correlation, or sliding dot product, to assess for positive or negative correlation. The time lag was calculated for multiple days (represented in the Heat Map) to see if there were delays in which a spike in search trends were more correlated with a similar spike in daily vaccination numbers. These calculations are pre-processed and not input into Shiny to save on computation time.
-
-
-*Google Search Trends*
-
-Google Search Trends are normalized from 0-100 within the region of interest (in this case, by state) over the time period of interest. Thus, a 100 indicates a maximum search interest within the time period specified, and 0 indicates minimal search interest within the time period specified. You can read more here (https://medium.com/google-news-lab/what-is-google-trends-data-and-what-does-it-mean-b48f07342ee8) with an interesting discussion of de-normalizing Google Trends data here (https://www.jmir.org/2020/1/e13347/).
-
-*Data sources*
-
-Our World in Data - Mathieu, E., Ritchie, H., Ortiz-Ospina, E. et al. A global database of COVID-19 vaccinations. Nat Hum Behav (2021). https://doi.org/10.1038/s41562-021-01122-8
-
-Google Search Trends data downloaded using the gtrendsR R package - https://cran.r-project.org/web/packages/gtrendsR/gtrendsR.pdf
 
 Heat Map 
 ======================
@@ -86,7 +48,7 @@ selectInput("google_trends_1", "Select a google search term", c("covid", "vaccin
 sliderInput("lag", "Select lag time in days", -14, 0, 7,step = 1) #c("0","-1","-2",'-3','-4','-5','-6','-7','-8','-9','-10','-11','-12','-13','-14'))
 ```
 
-Heat Map (Please expand screen)
+Heat Map
 -------------------------------------
 ### Heat Map
 ```{r rendering heat map, echo=FALSE}
@@ -153,7 +115,6 @@ p
 # final_data
 # })
 ```
-
 
 
 Graphs of Trends 
@@ -290,14 +251,13 @@ renderPlotly({
 ```
 
 
-Column {data-width=750}
+Column {data-width=1000}
 -------------------------------------------
+
 ### Model Details
 ```{r, echo=FALSE}
 renderDataTable({
 
- 
-  
   library(DT)
    vt2 = c(gsub(" ", "_", as.character(input$vaccine_trend_2)))
  if(length(input$states)>0&length(input$states)<=5){
@@ -310,24 +270,30 @@ renderDataTable({
   select("state", "term", "lagd", "croscor")%>%
   rename(
     "State" = state,
-   "Google Trend" = term,
+    "Google Trend" = term,
     "Cross correlation" = croscor,
-   "Days lagged" = lagd)
-}
+    "Days lagged" = lagd)
+ }
    
 else{
- display = model_dat %>% 
+  display = model_dat %>% 
   filter(outcome=="")%>%
   select("state", "term", "lagd", "croscor")%>%
-   rename(
+    rename(
     "State" = state,
     "Google Trend" = term,
     "Cross correlation" = croscor,
     "Days lagged" = lagd)
+  
+  
+   
+  #return(setDT(display))
 }
-   
-    datatable(display, options=list(dom='tp', pageLength=12))            
-   
+  datatable(display, options=list(dom='tp', pageLength=12))
 })
 ```
+
+Web App Details 
+======================
+### App Details 
 
