@@ -245,14 +245,14 @@ renderPlotly({
 ```
 
 
-Column {data-width=700}
+Column {data-width=1000}
 -------------------------------------------
 
 ### Model Details
 ```{r, echo=FALSE}
-renderTable({
+renderDataTable({
 
-  library(data.table)
+  library(DT)
    vt2 = c(gsub(" ", "_", as.character(input$vaccine_trend_2)))
  if(length(input$states)>0&length(input$states)<=5){
   display = model_dat %>% 
@@ -260,30 +260,30 @@ renderTable({
   filter(term%in%input$google_trends_2)%>%
   filter(state%in%input$states)%>%
   filter(lagd==-3|lagd==-7|lagd==-14)%>%
+  mutate(croscor=round(croscor, 2))%>%
   select("state", "term", "lagd", "croscor")%>%
   rename(
     "State" = state,
     "Google Trend" = term,
     "Cross correlation" = croscor,
     "Days lagged" = lagd)
-  
-    return(setDT(display))
  }
    
 else{
   display = model_dat %>% 
   filter(outcome=="")%>%
-  select("state", "term", "croscor")%>%
-  rename(
+  select("state", "term", "lagd", "croscor")%>%
+    rename(
     "State" = state,
     "Google Trend" = term,
     "Cross correlation" = croscor,
     "Days lagged" = lagd)
   
-  return(setDT(display))
   
+   
+  #return(setDT(display))
 }
-
+  datatable(display, options=list(dom='t', pageLength=15))
 })
 ```
 
