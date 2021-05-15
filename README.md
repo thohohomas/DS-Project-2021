@@ -1,4 +1,4 @@
-# Are Google Search Trends correlated with COVID-19 Daily Vaccination Rates? 
+# Are Google Search Trends correlated with US COVID-19 Daily Vaccination Rates? 
 *An infodemiologic analysis using Google Search Trends in the COVID-19 pandemic* 
 
 *Final project for data science for public health 2021, with Zach Murphy, Neha Anand, John Morkos, and Thomas Le* 
