@@ -19,7 +19,7 @@ Here, you can see a graph of daily vaccinations and Google search trends over ti
 ## Technical details under the hood
 
 ### Analysis 
-The un-processed daily vaccination data and Google Search Trend data was first fit to an ARIMA model (https://online.stat.psu.edu/stat510/lesson/1) to account for the time series nature of this data. Then, the correlation between the two models was determined by taking the residuals from the two models and calculating a cross-correlation, or sliding dot product, to assess for positive or negative correlation. These calculations are pre-processed and not input into Shiny to save on computation. 
+The un-processed daily vaccination data and Google Search Trend data was first fit to an ARIMA model (https://online.stat.psu.edu/stat510/lesson/1) to account for the time series nature of this data. Then, the correlation between the two models was determined by taking the residuals from the two models and calculating a cross-correlation, or sliding dot product, to assess for positive or negative correlation. The time lag was calculated for multiple days (represented in the Heat Map) to see if there was an optimal delay in which a spike in search trends more correlated with a similar spike in daily vaccination numbers. These calculations are pre-processed and not input into Shiny to save on computation. 
  
 ![Flowsheet of analysis](186556621_312545773735312_4906485619895090758_n.png) 
  
