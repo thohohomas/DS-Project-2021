@@ -3,7 +3,7 @@
 
 *Final project for data science for public health 2021, with Zach Murphy, Neha Anand, John Morkos, and Thomas Le* 
  
- **Find the app here: link to app here**
+ **Find the app here: https://nanand7.shinyapps.io/covid_vax_and_google_trends/#section-graphs-of-trends*
  
  ## Summary 
  This is a shiny app that visualizes the association between potential vaccination search terms "covid", "vaccine", "vaccine near me", "mask", "social distancing" and "qanon" with actual daily vaccination totals within the US by states from January 1st, 2021 to May 11th, 2021.
