@@ -10,6 +10,11 @@ runtime: shiny
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r, include = FALSE}
+library(DT)
+DT::datatable(data.frame(x=1))
+```
+
 ```{r loading data, echo=FALSE, message=FALSE}
 library(tidyverse)
 library(ggplot2)
